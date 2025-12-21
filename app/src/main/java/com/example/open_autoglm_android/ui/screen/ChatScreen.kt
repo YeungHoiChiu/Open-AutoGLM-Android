@@ -1,8 +1,10 @@
 package com.example.open_autoglm_android.ui.screen
 
 import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,7 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -439,16 +443,27 @@ fun ConversationItem(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatMessageItem(message: com.example.open_autoglm_android.ui.viewmodel.ChatMessage) {
     val isUser = message.role == MessageRole.USER
+    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
     
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
     ) {
         Card(
-            modifier = Modifier.widthIn(max = 280.dp),
+            modifier = Modifier
+                .widthIn(max = 280.dp)
+                .combinedClickable(
+                    onClick = { /* 点击消息暂不触发特定行为 */ },
+                    onLongClick = {
+                        clipboardManager.setText(AnnotatedString(message.content))
+                        Toast.makeText(context, "消息已复制到剪贴板", Toast.LENGTH_SHORT).show()
+                    }
+                ),
             colors = CardDefaults.cardColors(
                 containerColor = if (isUser) {
                     MaterialTheme.colorScheme.primaryContainer
