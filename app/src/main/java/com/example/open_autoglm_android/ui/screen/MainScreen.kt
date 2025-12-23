@@ -42,8 +42,14 @@ fun MainScreen(
             ConversationDrawer(
                 conversations = uiState.conversations,
                 currentConversationId = uiState.currentConversationId,
-                onConversationClick = { viewModel.switchConversation(it) },
-                onNewConversation = { viewModel.createNewConversation() },
+                onConversationClick = {
+                    viewModel.switchConversation(it)
+                    scope.launch { drawerState.close() }
+                },
+                onNewConversation = {
+                    viewModel.createNewConversation()
+                    scope.launch { drawerState.close() }
+                },
                 onDeleteConversation = { viewModel.deleteConversation(it) }
             )
         }
